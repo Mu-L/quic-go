@@ -755,6 +755,7 @@ var _ = Describe("Session", func() {
 				PacketNumberLen: protocol.PacketNumberLen1,
 			}
 			packet := getPacket(hdr, nil)
+			packet.ecn = protocol.ECNCE
 			rcvTime := time.Now().Add(-10 * time.Second)
 			unpacker.EXPECT().Unpack(gomock.Any(), rcvTime, gomock.Any()).Return(&unpackedPacket{
 				packetNumber:    0x1337,
@@ -765,7 +766,7 @@ var _ = Describe("Session", func() {
 			rph := mockackhandler.NewMockReceivedPacketHandler(mockCtrl)
 			gomock.InOrder(
 				rph.EXPECT().IsPotentiallyDuplicate(protocol.PacketNumber(0x1337), protocol.EncryptionInitial),
-				rph.EXPECT().ReceivedPacket(protocol.PacketNumber(0x1337), protocol.ECNNon, protocol.EncryptionInitial, rcvTime, false),
+				rph.EXPECT().ReceivedPacket(protocol.PacketNumber(0x1337), protocol.ECNCE, protocol.EncryptionInitial, rcvTime, false),
 			)
 			sess.receivedPacketHandler = rph
 			packet.rcvTime = rcvTime
@@ -784,6 +785,7 @@ var _ = Describe("Session", func() {
 			buf := &bytes.Buffer{}
 			Expect((&wire.PingFrame{}).Write(buf, sess.version)).To(Succeed())
 			packet := getPacket(hdr, nil)
+			packet.ecn = protocol.ECT1
 			unpacker.EXPECT().Unpack(gomock.Any(), rcvTime, gomock.Any()).Return(&unpackedPacket{
 				packetNumber:    0x1337,
 				encryptionLevel: protocol.Encryption1RTT,
@@ -793,7 +795,7 @@ var _ = Describe("Session", func() {
 			rph := mockackhandler.NewMockReceivedPacketHandler(mockCtrl)
 			gomock.InOrder(
 				rph.EXPECT().IsPotentiallyDuplicate(protocol.PacketNumber(0x1337), protocol.Encryption1RTT),
-				rph.EXPECT().ReceivedPacket(protocol.PacketNumber(0x1337), protocol.ECNNon, protocol.Encryption1RTT, rcvTime, true),
+				rph.EXPECT().ReceivedPacket(protocol.PacketNumber(0x1337), protocol.ECT1, protocol.Encryption1RTT, rcvTime, true),
 			)
 			sess.receivedPacketHandler = rph
 			packet.rcvTime = rcvTime
