@@ -1,6 +1,7 @@
 package quic
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -174,6 +175,7 @@ func (c *ecnConnIPv6) ReadPacket() (*receivedPacket, error) {
 }
 
 func newECNConn(c *net.UDPConn) (connection, error) {
+	fmt.Printf("new ECN Conn: %#v (%s)\n", c.LocalAddr(), c.LocalAddr().String())
 	if utils.IsIPv4(c.LocalAddr().(*net.UDPAddr).IP) {
 		return newECNConnIPv4(c)
 	}

@@ -101,6 +101,7 @@ func dialAddrContext(
 	if err != nil {
 		return nil, err
 	}
+	fmt.Printf("UDP addr: %s, network: %s, isIPv4: %t\n", udpAddr.String(), udpAddr.Network(), utils.IsIPv4(udpAddr.IP))
 	udpConn, err := net.ListenUDP("udp", &net.UDPAddr{IP: net.IPv4zero, Port: 0})
 	if err != nil {
 		return nil, err
